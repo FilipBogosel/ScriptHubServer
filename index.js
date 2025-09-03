@@ -2,7 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
+//const scriptRoutes = require('./routes/script');
+import scriptRoutes from './routes/script.js';
 
 async function connectDB() {
     try{
@@ -24,3 +26,5 @@ app.get('/', (req, res) => {
 app.listen(PORT,()=>{
     console.log(`Listening for HTTP requests on http://localhost:${PORT}`);
 });
+app.use(express.json());
+app.use('api/scripts', scriptRoutes);
