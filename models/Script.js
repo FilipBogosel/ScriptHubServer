@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+// Define available categories for scripts, make sure they match the frontend in ScriptHub app
 const categories = [
     { value: 'all', label: 'All Categories' },
     { value: 'file-management', label: 'File Management' },
@@ -9,10 +9,18 @@ const categories = [
     { value: 'development', label: 'Development' }
 ];
 
+// Schema for script parameters(used in the Script schema)
+const parameterSchema = new mongoose.Schema({
+    name: { type: String, required: true, trim: true },
+    label: { type: String, required: true, trim: true },
+    type: { type: String, required: true, enum: ['file', 'folder', 'text', 'number'] },
+    placeholder: { type: String, required: false },
+    required: { type: Boolean, default: true }
+});
 
+// Schema for scripts in the database, to ensure data integrity and consistency
 const scriptsSchema = new mongoose.Schema(
     {
-        "id": { type: Number, required: true, unique: true },
         "name": { type: String, required: true, unique: true, minLength: 3, maxLength: 100, trim: true },
         "title": { type: String, required: true, unique: true, minLength: 3, maxLength: 100, trim: true },
         "description": { type: String, required: true, minLength: 10, maxLength: 100, trim: true },
@@ -20,13 +28,15 @@ const scriptsSchema = new mongoose.Schema(
         "version": { type: String, required: false, trim: true, default: "1.0.0" },
         "category": { type: String, required: true, trim: true, enum: categories.map(cat => cat.value) },
         "type": { type: String, required: false, trim: true, enum: ['my', 'community'], default: 'community' },
-        "author": { type: String, required: true, trim: true, minLength: 3, maxLength: 50 },
+        "author": { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
         "tags": { type: [String], required: false, default: [] },
-        "parameters": { type: [Object], required: true, default: [] },
+        "parameters": { type: [parameterSchema], required: true, default: [] },
         "outputFormat": { type: String, required: false, trim: true, enum: ['text', 'file', 'image'], default: 'text' },
         "outputExtension": { type: String, required: false, trim: true, default: 'none' },
         "executable": { type: String, required: true, trim: true, minLength: 3, maxLength: 100 },
-    }
+
+    },
+    { timestamps: true }
 );
 
 export default mongoose.model('Script', scriptsSchema);

@@ -18,9 +18,10 @@ router.get('/', async (req, res) => {
     }
 });
 
+//POST /api/scripts - add a new script to the database
 router.post('/', async (req, res) => {
     try {
-        const newScript = new Script({ ...req.body, rating: 0.0, reviews: 0, uploadDate: new Date() });
+        const newScript = new Script({ ...req.body, rating: 0.0, reviews: 0 });
         // TODO:  Consider making a custom object to return only necessary or allowed fields for security
         const savedScriptResponse = await newScript.save();
         res.status(201).json(savedScriptResponse);
