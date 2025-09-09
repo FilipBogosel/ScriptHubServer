@@ -1,21 +1,37 @@
 import express from 'express'
-import passport from 'passport';
+import passport, { use } from 'passport';
 import GitHubStrategy from 'passport-github2';
 import dotenv from 'dotenv';
+import User from '../models/User';
 
 dotenv.config();
 
 
 const router = express.Router();
+
+export const ensureAuthenticated = (req, res, next) => {
+    if(req.isAuthenticated())
+    {
+        return next();
+    }
+    res.status(401).json({message:'You must be logged in to perform this action!'});
+}
 const verify = async (accessToken, refreshToken, profile, done) => {
     try {
-        //...
-        const mockUser = { providerId: profile.id, username: profile.username };
-        return done(null, mockUser);
+        const user =  await User.findOne({ provider: 'github', providerId: profile.id });
+        if(user){
+            return done(null,user);
+        }
+        else{
+            //If there is a new user, we create it in the database
+            const newUser = new User({provider:'github', providerId:profile.id, username: profile.username, email: profile._json.email});
+            const savedUser = await newUser.save();
+            return done(null,savedUser);
+        }
     }
     catch (error) {
         console.error('Error verifying GitHub account!', error.message);
-        done(error, null);
+        return done(error, null);
     }
 }
 const gitHubStrategy = new GitHubStrategy({
@@ -40,7 +56,7 @@ router.get('/github', (req, res, next) => {
 });
 
 // Route to handle logout
-router.get('/logout', (req, res) => {
+router.get('/logout',ensureAuthenticated, (req, res) => {
     req.logout((error) => {
         if (error) {
             console.error(error);
@@ -58,16 +74,17 @@ router.get('/logout', (req, res) => {
 
 // Route to check authentication status
 router.get('/status', (req, res) => {
-    if(req.isAuthenticated()){
-        res.json({authenticated:true, user:req.user});
+    if (req.isAuthenticated()) {
+        res.json({ authenticated: true, user: req.user });
     }
-    else{
-        res.json({authenticated:false});
+    else {
+        res.json({ authenticated: false });
     }
 });
 // Callback route that GitHub will redirect to after authentication
 router.get('/github/callback', passport.authenticate('github', {
-    failureRedirect: '/login'
+    failureRedirect: '/login',
+    scope: ['user:email']
 }),
     (req, res) => {
         console.log('GitHub authentication successful!');
