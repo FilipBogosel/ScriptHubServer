@@ -32,7 +32,7 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave:false,
     saveUninitialized:false,
-    cookie: { maxAge: 3600000 }
+    cookie: { maxAge: 3600000 }//1 hour duration cookie
     //in a production env we should use a cookie:{ secure:true } option to ensure cookies are only sent over HTTPS
 }));
 app.use(passport.initialize());

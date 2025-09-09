@@ -3,6 +3,7 @@ import passport, { use } from 'passport';
 import GitHubStrategy from 'passport-github2';
 import dotenv from 'dotenv';
 import User from '../models/User';
+import GoogleStrategy from 'passport-google-oauth20'
 
 dotenv.config();
 
@@ -16,37 +17,48 @@ export const ensureAuthenticated = (req, res, next) => {
     }
     res.status(401).json({message:'You must be logged in to perform this action!'});
 }
-const verify = async (accessToken, refreshToken, profile, done) => {
-    try {
-        const user =  await User.findOne({ provider: 'github', providerId: profile.id });
-        if(user){
-            return done(null,user);
+const verify = (providerName)=>{
+    return async (accessToken, refreshToken, profile, done) => {
+        try {
+            const user = await User.findOne({ provider: providerName, providerId: profile.id });
+            if (user) {
+                return done(null, user);
+            }
+            else {
+                //If there is a new user, we create it in the database
+                const newUser = new User({
+                    provider: providerName,
+                    providerId: profile.id,
+                    username: profile.username,
+                    email: profile._json.email,
+                    accessToken: accessToken
+                });
+                const savedUser = await newUser.save();
+                return done(null, savedUser);
+            }
         }
-        else{
-            //If there is a new user, we create it in the database
-            const newUser = new User({ 
-                provider: 'github', 
-                providerId: profile.id, 
-                username: profile.username, 
-                email: profile._json.email, 
-                accessToken: accessToken });
-            const savedUser = await newUser.save();
-            return done(null,savedUser);
+        catch (error) {
+            console.error('Error verifying GitHub account!', error.message);
+            return done(error, null);
         }
-    }
-    catch (error) {
-        console.error('Error verifying GitHub account!', error.message);
-        return done(error, null);
     }
 }
+
 const gitHubStrategy = new GitHubStrategy({
     clientID: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
     callbackURL: 'http://localhost:5000/api/auth/github/callback',
-}, verify);
+}, verify('github'));
 
-// Register the GitHub strategy with Passport.js
+const googleStrategy = new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "http://localhost:5000/api/auth/google/callback"
+}, verify('google'));
+
+// Register the GitHub and Google strategy with Passport.js
 passport.use(gitHubStrategy);
+passport.use(googleStrategy);
 
 // Route to initiate GitHub authentication
 router.get('/github', (req, res, next) => {
@@ -95,6 +107,18 @@ router.get('/github/callback', passport.authenticate('github', {
         console.log('GitHub authentication successful!');
         res.send('GitHub authentication successful! You can close this window and return to the app.');
     });
+
+
+//Google Auth routes
+
+router.get('/google', passport.authenticate('google', {scope:['profile', 'email']}));
+
+
+router.get('/google/callback', passport.authenticate('google', {scope:['profile', 'email']}), 
+(req, res)=>{
+    console.log("Authentication with Google succesful!");
+    res.send("Google authentication successful! You can close this window and return to the app.")
+});
 
 
 export default router;
