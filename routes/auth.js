@@ -24,7 +24,12 @@ const verify = async (accessToken, refreshToken, profile, done) => {
         }
         else{
             //If there is a new user, we create it in the database
-            const newUser = new User({provider:'github', providerId:profile.id, username: profile.username, email: profile._json.email});
+            const newUser = new User({ 
+                provider: 'github', 
+                providerId: profile.id, 
+                username: profile.username, 
+                email: profile._json.email, 
+                accessToken: accessToken });
             const savedUser = await newUser.save();
             return done(null,savedUser);
         }
