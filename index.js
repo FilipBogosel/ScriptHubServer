@@ -10,6 +10,10 @@ import authRoutes from './routes/auth.js';
 import passport from 'passport';
 import session from 'express-session';
 import User from './models/User.js';
+import helmet from 'helmet';
+import cors from 'cors'
+import MongoStore from 'connect-mongo';
+import rateLimit from 'express-rate-limit';
 
 
 
@@ -27,28 +31,57 @@ async function connectDB() {
 
 connectDB();
 //Auth Setup Start
+
+//security middleware
+app.use(helmet());
+
+const isProduction = process.env.NODE_ENV === 'production';
+const clientUrl = isProduction ? 'app://' : 'http://localhost:5173';
+
+app.use(cors({
+    origin: clientUrl,
+    credentials: true
+}));
+
+// Apply a rate limiter to all requests
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per window
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+app.use(limiter);
+
 //middleware for handling sessions, required for passport.js to manage user authentication state across different requests.
 app.use(session({
     secret: process.env.SESSION_SECRET,
-    resave:false,
-    saveUninitialized:false,
-    cookie: { maxAge: 3600000 }//1 hour duration cookie
-    //in a production env we should use a cookie:{ secure:true } option to ensure cookies are only sent over HTTPS
+    resave: false,
+    saveUninitialized: false,
+    store:MongoStore.create({
+        mongoUrl:process.env.MONGO_URI,
+        collectionName:'sessions'
+    }),
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24,
+        secure: isProduction,//make the cookie only work in https in production for security
+        httpOnly: true,
+        sameSite: isProduction ? 'none' : 'lax'
+    }//24 hours
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.serializeUser((user,done) => {
-    done(null,user.providerId);
+passport.serializeUser((user, done) => {
+    done(null, user.providerId);
 });
 
-passport.deserializeUser(async (providerId,done) => {
-    try{
-        const user = await User.findOne({providerId:providerId});
-        done(null,user);
+passport.deserializeUser(async (providerId, done) => {
+    try {
+        const user = await User.findOne({ providerId: providerId });
+        done(null, user);
     }
-    catch(error){
-        done(error,null);
+    catch (error) {
+        done(error, null);
     }
 });
 
