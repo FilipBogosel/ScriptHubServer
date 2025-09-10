@@ -1,8 +1,8 @@
 import express from 'express'
-import passport, { use } from 'passport';
+import passport from 'passport';
 import GitHubStrategy from 'passport-github2';
 import dotenv from 'dotenv';
-import User from '../models/User';
+import User from '../models/User.js';
 import GoogleStrategy from 'passport-google-oauth20'
 
 dotenv.config();
@@ -26,11 +26,22 @@ const verify = (providerName)=>{
             }
             else {
                 //If there is a new user, we create it in the database
+                let email;
+                if (profile.emails && profile.emails.length > 0) {
+                    // Try to get from emails array first
+                    email = profile.emails[0].value;
+                } else if (profile._json && profile._json.email) {
+                    // Try _json.email second
+                    email = profile._json.email;
+                } else {
+                    // Generate placeholder email as last resort
+                    email = `${profile.username || profile.id}@${providerName}.user`;
+                }
                 const newUser = new User({
                     provider: providerName,
                     providerId: profile.id,
-                    username: profile.username,
-                    email: profile._json.email,
+                    username: providerName === 'github' ? profile.username : profile.displayName,
+                    email: email,
                     accessToken: accessToken
                 });
                 const savedUser = await newUser.save();
