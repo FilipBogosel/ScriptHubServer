@@ -6,7 +6,6 @@ import multer from 'multer';
 import AWS from 'aws-sdk'
 //for generating unique file names
 import { v4 as uuidv4 } from 'uuid'
-import { authenticate } from 'passport';
 
 //We need to have AWS set up to upload the executables to Amazon S3 
 // Configure AWS SDK
