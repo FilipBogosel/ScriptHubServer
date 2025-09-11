@@ -22,7 +22,6 @@ const parameterSchema = new mongoose.Schema({
 const scriptsSchema = new mongoose.Schema(
     {
         "name": { type: String, required: true, unique: true, minLength: 3, maxLength: 100, trim: true },
-        "title": { type: String, required: true, unique: true, minLength: 3, maxLength: 100, trim: true },
         "description": { type: String, required: true, minLength: 10, maxLength: 100, trim: true },
         "longDescription": { type: String, required: true, minLength: 20, maxLength: 10000, trim: true },
         "version": { type: String, required: false, trim: true, default: "1.0.0" },
@@ -31,10 +30,12 @@ const scriptsSchema = new mongoose.Schema(
         "author": { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
         "tags": { type: [String], required: false, default: [] },
         "parameters": { type: [parameterSchema], required: true, default: [] },
-        "outputFormat": { type: String, required: false, trim: true, enum: ['text', 'file', 'image'], default: 'text' },
         "outputExtension": { type: String, required: false, trim: true, default: 'none' },
         "executable": { type: String, required: true, trim: true, minLength: 3, maxLength: 100 },
-
+        "fileKeys": [{
+            type:String,
+            required:true
+        }]
     },
     { timestamps: true }
 );
