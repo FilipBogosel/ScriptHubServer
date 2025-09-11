@@ -36,7 +36,7 @@ connectDB();
 app.use(helmet());
 
 const isProduction = process.env.NODE_ENV === 'production';
-const clientUrl = isProduction ? 'app://' : 'http://localhost:5173';
+const clientUrl = isProduction ? 'app://.' : 'http://localhost:5173';
 
 app.use(cors({
     origin: clientUrl,
@@ -72,12 +72,13 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 passport.serializeUser((user, done) => {
-    done(null, user.providerId);
+    done(null, `${user.provider}:${user.providerId}`);
 });
 
-passport.deserializeUser(async (providerId, done) => {
+passport.deserializeUser(async (serializedId, done) => {
     try {
-        const user = await User.findOne({ providerId: providerId });
+        const [provider, providerId] = serializedId.split(':');
+        const user = await User.findOne({ provider, providerId });
         done(null, user);
     }
     catch (error) {
