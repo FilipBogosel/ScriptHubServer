@@ -4,6 +4,7 @@ const router = express.Router();
 import { ensureAuthenticated } from './auth.js';
 import multer from 'multer';
 import AWS from 'aws-sdk'
+//for generating unique file names
 import { v4 as uuidv4 } from 'uuid'
 import { authenticate } from 'passport';
 
@@ -17,7 +18,10 @@ const s3 = new AWS.S3({
 
 //Multer setup for file uploads(it unpacks multipart/form-data into req.file or req.files and req.body)
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 50 * 1024 * 1024 }, // Limit file size to 50MB
+ });
 
 
 
@@ -50,7 +54,7 @@ router.post('/', ensureAuthenticated, upload.array('scriptFiles', 10), async (re
             const fileKey = `${uuidv4()}-${file.originalname}`;
             const uploadParams = {
                 Bucket: process.env.AWS_BUCKET_NAME,
-                fileKey: fileKey,
+                Key: fileKey,
                 Body: file.buffer
             };
             return s3.upload(uploadParams).promise().then(data => data.Key);
