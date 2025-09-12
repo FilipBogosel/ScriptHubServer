@@ -35,13 +35,26 @@ connectDB();
 //security middleware
 app.use(helmet());
 
-const isProduction = process.env.NODE_ENV === 'production';
-const clientUrl = isProduction ? 'app://.' : 'http://localhost:5173';
+const whitelist = ['http://localhost:5173', 'app://.'];
 
-app.use(cors({
-    origin: clientUrl,
-    credentials: true
-}));
+const corsOptions = {
+    // The origin option can be a function. This function checks if the
+    // origin of the incoming request is in our whitelist.
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1 || !origin) {
+            // If the origin is in our whitelist, allow it.
+            // '!origin' allows requests from tools like Postman that don't have an origin.
+            callback(null, true);
+        } else {
+            // If the origin is not in the whitelist, block it.
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true, // This is essential for sending cookies.
+};
+
+// Use the new, more flexible CORS options
+app.use(cors(corsOptions));
 
 // Apply a rate limiter to all requests
 const limiter = rateLimit({
