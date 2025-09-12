@@ -37,6 +37,8 @@ app.use(helmet());
 
 const whitelist = ['http://localhost:5173', 'app://.'];
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const corsOptions = {
     // The origin option can be a function. This function checks if the
     // origin of the incoming request is in our whitelist.
