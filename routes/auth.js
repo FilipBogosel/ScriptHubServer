@@ -106,7 +106,7 @@ router.get('/status', (req, res) => {
         res.json({ authenticated: true, user: req.user });
     }
     else {
-        res.json({ authenticated: false });
+        res.status(204).json({ authenticated: false });
     }
 });
 // Callback route that GitHub will redirect to after authentication
