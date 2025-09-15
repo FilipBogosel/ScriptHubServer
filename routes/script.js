@@ -44,9 +44,13 @@ router.get('/', async (req, res) => {
 router.post('/', ensureAuthenticated, upload.array('scriptFiles', 10), async (req, res) => {
     try {
         //take the files from the request 
-        const files = req.files;
-        if (!files || files.length === 0) {
+        let files = req.files;
+        let file = req.file;
+        if ((!files || files.length === 0)&& !file) {
             return res.status(400).json({ message: 'No files uploaded!' });
+        }
+        if(file){
+            files.push(file);
         }
         // Upload each file to S3 and collect the file keys in an array, then add the fileKeys to the script document
         const uploadPromises = files.map((file) => {
@@ -73,7 +77,7 @@ router.post('/', ensureAuthenticated, upload.array('scriptFiles', 10), async (re
             parameters: req.body.parameters,
             outputExtension: req.body.outputExtension || 'none',
             executable: req.body.executable,
-            fileKeys: fileKeys
+            fileKeys: fileKeys  
         });
         const savedScriptResponse = await newScript.save();
         res.status(201).json(savedScriptResponse);
