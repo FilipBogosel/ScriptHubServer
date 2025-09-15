@@ -35,8 +35,7 @@ connectDB();
 //security middleware
 app.use(helmet());
 
-const whitelist = ['http://localhost:5173', 'app://.'];
-
+const whitelist = ['http://localhost:5173', 'app://', 'file://'];
 const isProduction = process.env.NODE_ENV === 'production';
 
 const corsOptions = {
@@ -72,16 +71,16 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store:MongoStore.create({
-        mongoUrl:process.env.MONGO_URI,
-        collectionName:'sessions'
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URI,
+        collectionName: 'sessions'
     }),
     cookie: {
         maxAge: 1000 * 60 * 60 * 24,
-        secure: isProduction,//make the cookie only work in https in production for security
+        secure: false, // Set to false for Electron compatibility
         httpOnly: true,
-        sameSite: isProduction ? 'none' : 'lax'
-    }//24 hours
+        sameSite: 'lax' // Use 'lax' instead of conditional 'none'
+    }
 }));
 app.use(passport.initialize());
 app.use(passport.session());

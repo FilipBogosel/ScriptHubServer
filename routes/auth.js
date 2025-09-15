@@ -102,22 +102,48 @@ router.get('/logout',ensureAuthenticated, (req, res) => {
 
 // Route to check authentication status
 router.get('/status', (req, res) => {
-    if (req.isAuthenticated()) {
-        res.json({ authenticated: true, user: req.user });
-    }
-    else {
-        res.status(204).json({ authenticated: false });
+    try {
+        if (req.isAuthenticated() && req.user) {
+            res.json({
+                authenticated: true,
+                user: {
+                    id: req.user._id,
+                    username: req.user.username,
+                    provider: req.user.provider,
+                    email: req.user.email
+                }
+            });
+        } else {
+            res.json({ authenticated: false });
+        }
+    } catch (error) {
+        console.error('Error in status route:', error);
+        res.status(500).json({
+            authenticated: false,
+            error: 'Internal server error'
+        });
     }
 });
 // Callback route that GitHub will redirect to after authentication
+// GitHub callback
 router.get('/github/callback', passport.authenticate('github', {
     failureRedirect: '/login',
     scope: ['user:email']
-}),
-    (req, res) => {
-        console.log('GitHub authentication successful!');
-        res.send('GitHub authentication successful! You can close this window and return to the app.');
-    });
+}), (req, res) => {
+    console.log('GitHub authentication successful!');
+    // Send a proper HTML response that will work with Electron
+    res.send(`
+        <html>
+            <body>
+                <script>
+                    window.opener.postMessage('authentication-complete', '*');
+                    window.close();
+                </script>
+                <p>Github authentication successful! You can close this window.</p>
+            </body>
+        </html>
+    `);
+});
 
 
 //Google Auth routes
@@ -125,10 +151,19 @@ router.get('/github/callback', passport.authenticate('github', {
 router.get('/google', passport.authenticate('google', {scope:['profile', 'email']}));
 
 
-router.get('/google/callback', passport.authenticate('google', {scope:['profile', 'email']}), 
-(req, res)=>{
-    console.log("Authentication with Google succesful!");
-    res.send("Google authentication successful! You can close this window and return to the app.")
+router.get('/google/callback', passport.authenticate('google', { scope: ['profile', 'email'] }), (req, res) => {
+    console.log("Authentication with Google successful!");
+    res.send(`
+        <html>
+            <body>
+                <script>
+                    window.opener.postMessage('authentication-complete', '*');
+                    window.close();
+                </script>
+                <p>Google authentication successful! You can close this window.</p>
+            </body>
+        </html>
+    `);
 });
 
 
