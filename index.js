@@ -77,9 +77,9 @@ app.use(session({
     }),
     cookie: {
         maxAge: 1000 * 60 * 60 * 24,
-        secure: false, // Set to false for Electron compatibility
+        secure: true, // Set to false for Electron compatibility
         httpOnly: true,
-        sameSite: 'lax' // Use 'lax' instead of conditional 'none'
+        sameSite: 'none' // Use 'lax' instead of conditional 'none'
     }
 }));
 app.use(passport.initialize());
