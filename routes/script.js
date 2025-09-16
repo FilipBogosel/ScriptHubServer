@@ -83,7 +83,7 @@ router.post('/', ensureAuthenticated, upload.array('scriptFiles', 10), async (re
     }
     catch (error) {
         console.error("Error adding script to database!", error.message);
-        res.status(400).json({ message: "Error adding script to database!" });
+        res.status(400).json({ message: "Error adding script to database!" , error:error});
     }
 });
 
