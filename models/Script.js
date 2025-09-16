@@ -15,7 +15,10 @@ const parameterSchema = new mongoose.Schema({
     label: { type: String, required: true, trim: true },
     type: { type: String, required: true, enum: ['file', 'folder', 'text', 'number'] },
     placeholder: { type: String, required: false },
-    required: { type: Boolean, default: true }
+    required: { type: Boolean, default: true },
+    defaultValue: { type: String, required: false },
+    description: { type: String, required: false, trim: true },
+    options: { type: [String], required: false } // For dropdowns or multiple choice
 });
 
 // Schema for scripts in the database, to ensure data integrity and consistency

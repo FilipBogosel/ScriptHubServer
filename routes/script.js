@@ -73,7 +73,7 @@ router.post('/', ensureAuthenticated, upload.array('scriptFiles', 10), async (re
             type: 'community',
             author: req.user._id,
             tags: req.body.tags,
-            parameters: req.body.parameters,
+            parameters: JSON.parse(req.body.parameters || '[]'), 
             outputExtension: req.body.outputExtension || 'none',
             executable: req.body.executable,
             fileKeys: fileKeys  
