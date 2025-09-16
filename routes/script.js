@@ -71,7 +71,7 @@ router.post('/', ensureAuthenticated, upload.array('scriptFiles', 10), async (re
             version: req.body.version || '1.0.0',
             category: req.body.category,
             type: 'community',
-            author: req.user._id,
+            author: req.user.username,
             tags: req.body.tags,
             parameters: JSON.parse(req.body.parameters || '[]'), 
             outputExtension: req.body.outputExtension || 'none',
