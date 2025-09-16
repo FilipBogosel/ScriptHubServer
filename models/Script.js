@@ -30,7 +30,7 @@ const scriptsSchema = new mongoose.Schema(
         "version": { type: String, required: false, trim: true, default: "1.0.0" },
         "category": { type: String, required: true, trim: true, enum: categories.map(cat => cat.value) },
         "type": { type: String, required: false, trim: true, enum: ['my', 'community'], default: 'community' },
-        "author": { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        "author": { type: String, required: true, trim: true, minLength: 3, maxLength: 30 },
         "tags": { type: [String], required: false, default: [] },
         "parameters": { type: [parameterSchema], required: true, default: [] },
         "outputExtension": { type: String, required: false, trim: true, default: 'none' },
@@ -42,7 +42,7 @@ const scriptsSchema = new mongoose.Schema(
         "downloads": { type: Number, required: false, default: 0 },
         "rating": { type: Number, required: false, default: 0 },
         "ratingCount": { type: Number, required: false, default: 0 },
-        
+
     },
     { timestamps: true }
 );
