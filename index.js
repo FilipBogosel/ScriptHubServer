@@ -104,7 +104,8 @@ passport.deserializeUser(async (serializedId, done) => {
 
 // Middleware setup for scripts: ensures that incoming requests with JSON payloads are correctly parsrsed make the JSON data available on req.body
 //and gives the task of handling requests to the /api/scripts endpoint to the scriptRoutes router.
-app.use(express.json());
+app.use(express.json({ limit: '50mb' })); // Increase JSON limit
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/api/scripts', scriptRoutes);
 app.use('/api/auth', authRoutes);
 //a simple roue to test if the server is running
