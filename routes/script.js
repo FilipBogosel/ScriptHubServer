@@ -76,7 +76,10 @@ router.post('/', ensureAuthenticated, upload.array('scriptFiles', 10), async (re
             parameters: JSON.parse(req.body.parameters || '[]'), 
             outputExtension: req.body.outputExtension || 'none',
             executable: req.body.executable,
-            fileKeys: fileKeys  
+            fileKeys: fileKeys,
+            downloads: 0,
+            rating: 0,
+            ratingCount: 0,
         });
         const savedScriptResponse = await newScript.save();
         res.status(201).json(savedScriptResponse);

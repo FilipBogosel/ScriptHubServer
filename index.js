@@ -109,6 +109,21 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/api/scripts', scriptRoutes);
 app.use('/api/auth', authRoutes);
 //a simple roue to test if the server is running
+
+//simple get route to get a user from the database by their mongoDB _id
+app.get('/api/user/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+    } catch (error) {
+        console.error("Error fetching user from database!", error.message);
+        res.status(500).json({ message: "Error fetching user from database!" });
+    }
+});
+
 app.get('/', (req, res) => {
     res.send("The server is running and has attempted to connect to the database!");
 });

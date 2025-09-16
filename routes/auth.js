@@ -42,7 +42,6 @@ const verify = (providerName)=>{
                     providerId: profile.id,
                     username: providerName === 'github' ? profile.username : profile.displayName,
                     email: email,
-                    accessToken: accessToken
                 });
                 const savedUser = await newUser.save();
                 return done(null, savedUser);

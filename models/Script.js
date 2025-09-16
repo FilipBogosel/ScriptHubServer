@@ -38,7 +38,11 @@ const scriptsSchema = new mongoose.Schema(
         "fileKeys": [{
             type:String,
             required:true
-        }]
+        }],
+        "downloads": { type: Number, required: false, default: 0 },
+        "rating": { type: Number, required: false, default: 0 },
+        "ratingCount": { type: Number, required: false, default: 0 },
+        
     },
     { timestamps: true }
 );
