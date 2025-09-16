@@ -46,6 +46,9 @@ router.post('/', ensureAuthenticated, upload.array('scriptFiles', 10), async (re
         //take the files from the request 
         let files = req.files;
         if (!files || files.length === 0) {
+            if(req.file){
+                return res.status(400).json({ message: 'No files uploaded, but req.file is valid!' });
+            }
             return res.status(400).json({ message: 'No files uploaded!' });
         }
         // Upload each file to S3 and collect the file keys in an array, then add the fileKeys to the script document
