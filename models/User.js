@@ -6,7 +6,6 @@ const userSchema = new mongoose.Schema({
     "providerId": { type: String, required: true, trim: true },
     "username": { type: String, required: true, unique: true, minLength: 3, maxLength: 30, trim: true },
     "email": { type: String, required: true, unique: true, trim: true },
-    "_id":{type:String, required: false}
 });
 userSchema.index({ provider: 1, providerId: 1 }, { unique: true });
 

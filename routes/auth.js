@@ -106,10 +106,11 @@ router.get('/status', (req, res) => {
             res.json({
                 authenticated: true,
                 user: {
-                    id: req.user._id,
+                    id:req.user.providerId,
+                    provider:req.user.provider,
                     username: req.user.username,
-                    provider: req.user.provider,
-                    email: req.user.email
+                    email: req.user.email,
+                    _id:req.user._id
                 }
             });
         } else {
