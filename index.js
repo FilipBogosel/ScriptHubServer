@@ -108,11 +108,22 @@ app.use(express.json({ limit: '50mb' })); // Increase JSON limit
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/api/scripts', scriptRoutes);
 app.use('/api/auth', authRoutes);
+
+//end of middleware
+
+
 //a simple roue to test if the server is running
-
-
 app.get('/', (req, res) => {
     res.send("The server is running and has attempted to connect to the database!");
+});
+
+//a aimple route to update a user's username
+app.get('/api/update-username/:id/:newUsername', async (req,res) =>{
+    const user = await User.findById(req.params.id);
+    const oldUsername = user.username;
+    user.username = req.params.newUsername;
+    await user.save();
+    res.send({oldUsername:oldUsername,newUsername:user.username});
 });
 // Start the server and listen on the specified port for incoming HTTP requests.
 app.listen(PORT, () => {
