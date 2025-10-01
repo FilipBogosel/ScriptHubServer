@@ -111,6 +111,10 @@ router.get('/:id/download', ensureAuthenticated, async (req, res) => {
             return s3.getSignedUrlPromise('getObject', downloadParams);
         });
 
+        //increment the download count
+        script.downloads += 1;
+        await script.save();
+
         const links = await Promise.all(urlPromises);
         //send the links to the client
         res.send({urls:links});
