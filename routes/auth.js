@@ -135,7 +135,7 @@ router.get('/github/callback', passport.authenticate('github', {
     res.send(`
         <html>
             <body>
-                <p>Github authentication successful! You can close this window.</p>
+                <p>Github authentication successful! Please don't close this window!</p>
             </body>
         </html>
     `);
@@ -152,7 +152,7 @@ router.get('/google/callback', passport.authenticate('google', { scope: ['profil
     res.send(`
         <html>
             <body>
-                <p>Google authentication successful! You can close this window.</p>
+                <p>Google authentication successful! Please don't close this window!</p>
             </body>
         </html>
     `); 
