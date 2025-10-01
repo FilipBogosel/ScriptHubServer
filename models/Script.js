@@ -1,13 +1,15 @@
 import mongoose from "mongoose";
 // Define available categories for scripts, make sure they match the frontend in ScriptHub app
-const categories = [
+categories = [
     { value: 'all', label: 'All Categories' },
     { value: 'file-management', label: 'File Management' },
     { value: 'media', label: 'Media' },
-    { value: 'backup', label: 'Backup' },
-    { value: 'automation', label: 'Automation' },
-    { value: 'development', label: 'Development' }
-];
+    { value: 'internet-web', label: 'Internet & Web' },
+    { value: 'automation', label: 'Automation Utilities' },
+    { value: 'development', label: 'Development' },
+    { value: 'security', label: 'Security & Privacy' },
+    { value: 'productivity-documents', label: 'Productivity & Documents' },
+];  
 
 // Schema for script parameters(used in the Script schema)
 const parameterSchema = new mongoose.Schema({
