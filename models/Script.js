@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 // Define available categories for scripts, make sure they match the frontend in ScriptHub app
-categories = [
+const categories = [
     { value: 'all', label: 'All Categories' },
     { value: 'file-management', label: 'File Management' },
     { value: 'media', label: 'Media' },
